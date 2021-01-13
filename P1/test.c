@@ -5,7 +5,8 @@
 
 #define MAX_LINE 80 /* The maximum length command */
 
-int parseArgs(char* rawInput, char** args) {
+char* parseArgs(char* rawInput) {
+  char* args[MAX_LINE/2 + 1]; // command line arguments
 	static char* saveState;
 
 	const char* delim = " ";
@@ -17,35 +18,30 @@ int parseArgs(char* rawInput, char** args) {
 		ptr = strtok_r(NULL, delim, &saveState);
 		i++;
 	}
-
-	return i;
+	
+	return *args;
 }
 
-void checkRepeatCommand(char* command, char* prevCommand) {
-	if (strcmp(command, "!!\n") == 0) {
-		if (prevCommand == NULL) {
-			// throw error
-		} else {
-			*command = *prevCommand;
-			printf("Assigned command to: %s\n", prevCommand);
-			// *args = *prevArgs;
-		}
-	}
-}
-void checkExitCommand(char* command, int* shouldRun) {
-	if (strcmp(command, "exit\n") == 0) {
-		*shouldRun = 0;
-	}
+int isRepeatCommand(char* rawInput) {
+	return (strcmp(rawInput, "!!\n") != 0);
 }
 
-void logArgs(char** args, int numArgs) {
+int isExitCommand(char* command) {
+	return (strcmp(command, "exit\n") != 0);
+}
+
+void logArgs(char** args) {
+	int numArgs = sizeof(args) / sizeof(args[0]);
+	printf("Num args: %d\n", numArgs);
+
 	char* command = args[0];
 	printf("Command: %s\n", command);
 	for (int i=1; i < numArgs; i++) {
 		printf("\tParam %d: %s\n", i, args[i]);
 	}
 }
-int checkAmpersand(char** args, int numArgs) {
+int checkAmpersand(char** args) {
+	int numArgs = sizeof(args) / sizeof(args[0]);
 	int inBackground = (args[numArgs - 1] == "&"); // do not pass & into execvp
 }
 
@@ -56,51 +52,57 @@ void handleChildProcess(char* command, char** args, int* shouldRun) {
 	shouldRun = 0;
 	printf("Finished child\n");
 }
-void handleParentProcess(int inBackground, int status, char* prevCommand, char * command) {
+void handleParentProcess(int inBackground, int status, char** args, char** prevArgs) {
 	printf("In parent\n");
 	if (!inBackground) {
 		wait(&status);
 	}
 
-	strcpy(prevCommand, "test");
-	printf("Assigned prevCommand to: %s\n", command);
 	printf("Finished parent\n");
-	// *prevArgs = *args;
+	*prevArgs = *args;
 }
 
-int main(void)
-{
+int main(void) {
   char* args[MAX_LINE/2 + 1]; // command line arguments
-	char* prevArgs[MAX_LINE/2 + 1];
+  char* prevArgs[MAX_LINE/2 + 1]; // command line arguments
+	int numArgs;
 	char* command = NULL;
 	char* prevCommand = NULL;
 	char rawInput[256];
+	char prevRawInput[256];
   int shouldRun = 1; // flag to determine when to exit program
+  int inBackground = 0; // flag to determine when to exit program
 	int status = 1;
+	int pid;
 
   while (shouldRun) {
     printf("osh>");
 		// rawInput is guaranteed to have at least one char
 		fgets(rawInput, 256, stdin);;
+		printf("Raw Input:%s\n", rawInput);
     fflush(stdout);
 
-		int numArgs = parseArgs(rawInput, args);
+		int repeat = isRepeatCommand(rawInput);
+		if (repeat) {
+			*args = *prevArgs;
+		} else {
+			*args = parseArgs(rawInput);
+		}
+		logArgs(args);
+
 		command = args[0];
+		shouldRun = isExitCommand(command);
+		printf("Should Run:%d\n", shouldRun);
+		inBackground = checkAmpersand(args);
 
-		// logArgs(args, numArgs);
-		checkRepeatCommand(command, prevCommand);
-		checkExitCommand(command, &shouldRun);
-		int inBackground = checkAmpersand(args, numArgs);
-
-		int pid = fork();
+		pid = fork();
 
 		if (pid == 0) {
 			handleChildProcess(command, args, &shouldRun);
 		}	else {
-			handleParentProcess(inBackground, status, prevCommand, command);
+			handleParentProcess(inBackground, status, args, prevArgs);
 		}
-		// printf("pid: %d, shouldRun: %d\n", pid, shouldRun);
-
+		printf("pid: %d, shouldRun: %d\n", pid, shouldRun);
   }
 
   return 0;
