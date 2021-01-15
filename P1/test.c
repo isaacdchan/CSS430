@@ -5,104 +5,175 @@
 
 #define MAX_LINE 80 /* The maximum length command */
 
-char* parseArgs(char* rawInput) {
-  char* args[MAX_LINE/2 + 1]; // command line arguments
+void copyInput(char* src, char* dest) {
+	for (int i=0; i<256; i++) {
+		dest[i] = src[i];
+	}
+}
+
+int parseAndCountArgs(char* input, char** args) {
 	static char* saveState;
 
-	const char* delim = " ";
-	char* ptr = strtok_r(rawInput, delim, &saveState);
-
+	const char delim[] = " \t\r\n\v\f";
 	int i = 0;
-	while(ptr != NULL) {
-		args[i] = ptr;
-		ptr = strtok_r(NULL, delim, &saveState);
-		i++;
+
+	args[i] = strtok(input, delim); // tokenize cmd
+	while (args[i] != NULL) {
+		i++; // increment to loop
+		args[i] = strtok(NULL, delim); // store null terminator at end of array
 	}
 	
-	return *args;
+	return i;
 }
 
-int isRepeatCommand(char* rawInput) {
-	return (strcmp(rawInput, "!!\n") != 0);
+// SYMBOL DETECTION ALGORITHMS
+int isRepeatCommand(char* input) {
+	int res = strcmp(input, "!!\n") == 0;
+
+	return res;
 }
-
-int isExitCommand(char* command) {
-	return (strcmp(command, "exit\n") != 0);
-}
-
-void logArgs(char** args) {
-	int numArgs = sizeof(args) / sizeof(args[0]);
-	printf("Num args: %d\n", numArgs);
-
+int isExitCommand(char** args) {
 	char* command = args[0];
-	printf("Command: %s\n", command);
+	int res = strcmp(command, "exit") == 0;
+
+	return res;
+}
+
+int findSymbolIndex(char** args, int numArgs, char* symbol) {
+	for (int i=0; i<numArgs; i++) {
+		if (strcmp(args[i], symbol) == 0) {
+			return i;
+		}
+	}
+	return -1;
+}
+int hasAmpersand(char** args, int numArgs) {
+	char* lastArg = args[numArgs - 1];
+	int res = strcmp(lastArg, "&") == 0;
+	return res;
+}
+// ------------------------------------
+
+void logArgs(char** args, int numArgs, int backgroundFlag, int redirectInFlag, int redirectOutFlag, int pipeFlag) {
+	printf("--------LOG-------\n");
+	printf("Command: %s\n", args[0]);
 	for (int i=1; i < numArgs; i++) {
 		printf("\tParam %d: %s\n", i, args[i]);
 	}
-}
-int checkAmpersand(char** args) {
-	int numArgs = sizeof(args) / sizeof(args[0]);
-	int inBackground = (args[numArgs - 1] == "&"); // do not pass & into execvp
+	printf("Background: %d | Redirect In: %d | Redirect Out : %d | Pipe: %d\n",
+					backgroundFlag, redirectInFlag, redirectOutFlag, pipeFlag);
+	printf("------------------\n");
 }
 
-void handleChildProcess(char* command, char** args, int* shouldRun) {
+void splitArgs(char** args, char** args1, char** args2, int delimeter) {
+	for (int i=0; i<delimeter; i++) {
+		args1[i] = args[i];
+		args2[i] = args[i+delimeter];
+	}
+
+	args1[delimeter] = NULL;
+	args2[delimeter] = NULL;
+}
+
+void handleChildProcess(char** args, int numArgs, int* runFlag) {
 	printf("In child\n");
+	char* command = args[0];
+
+	int lessThanIndex = findSymbolIndex(args, numArgs, "<");
+	int greaterThanIndex = findSymbolIndex(args, numArgs, ">");
+	int pipeIndex = findSymbolIndex(args, numArgs, "|");
+
+	// assume there isn't both < and > in args
+	if ((lessThanIndex != -1) || (greaterThanIndex != -1)) {
+		char* args1[MAX_LINE/2 + 1];
+		char* args2[MAX_LINE/2 + 1];
+
+		FILE *fp;
+		if (lessThanIndex != -1) {
+			splitArgs(args, args1, args2, lessThanIndex);
+
+			fp = fopen(args1[0], "r");
+			if (fp == NULL) {
+				printf("%s: No such file or directory\n", args1[0]);
+				return;
+			}
+
+			dup2(fileno(fp), STDIN_FILENO); // link fp1 to stdin
+			fclose(fp);
+			execvp(args2[0], args2);
+		} else { // (greaterThanIndex != -1)
+			splitArgs(args, args1, args2, greaterThanIndex);
+
+			fp = fopen(args2[0], "w");
+			if (fp == NULL) {
+				printf("%s: No such file or directory\n", args2[0]);
+				return;
+			}
+
+			dup2(fileno(fp), STDOUT_FILENO); // link fp1 to stdin
+			execvp(args1[0], args1);
+		}
+		fclose(fp);
+	}
 
 	int rc = execvp(command, args);
-	shouldRun = 0;
+	if (rc < 0) { return 2; }
+	*runFlag = 0;
 	printf("Finished child\n");
 }
-void handleParentProcess(int inBackground, int status, char** args, char** prevArgs) {
+
+void handleParentProcess(int backgroundFlag, int status) {
 	printf("In parent\n");
-	if (!inBackground) {
+	if (!backgroundFlag) {
 		wait(&status);
 	}
 
 	printf("Finished parent\n");
-	*prevArgs = *args;
 }
 
 int main(void) {
   char* args[MAX_LINE/2 + 1]; // command line arguments
-  char* prevArgs[MAX_LINE/2 + 1]; // command line arguments
 	int numArgs;
 	char* command = NULL;
 	char* prevCommand = NULL;
-	char rawInput[256];
-	char prevRawInput[256];
-  int shouldRun = 1; // flag to determine when to exit program
-  int inBackground = 0; // flag to determine when to exit program
-	int status = 1;
+	char input[256];
+	char prevInput[256];
+	char tempInput[256];
+	const int status = 1;
+  int runFlag = 1; // flag to determine when to exit program
+  int backgroundFlag; // flag to determine when to exit program
+	int repeatFlag;
 	int pid;
 
-  while (shouldRun) {
-    printf("osh>");
-		// rawInput is guaranteed to have at least one char
-		fgets(rawInput, 256, stdin);;
-		printf("Raw Input:%s\n", rawInput);
+  while (runFlag) {
+    printf("ish>");
+		fgets(input, 256, stdin);
     fflush(stdout);
 
-		int repeat = isRepeatCommand(rawInput);
-		if (repeat) {
-			*args = *prevArgs;
+		repeatFlag = isRepeatCommand(input);
+		if (repeatFlag) {
+			copyInput(tempInput, input);
 		} else {
-			*args = parseArgs(rawInput);
+			copyInput(input, tempInput);
 		}
-		logArgs(args);
 
-		command = args[0];
-		shouldRun = isExitCommand(command);
-		printf("Should Run:%d\n", shouldRun);
-		inBackground = checkAmpersand(args);
+		numArgs = parseAndCountArgs(input, args);
+		runFlag = !isExitCommand(args);
+		backgroundFlag = hasAmpersand(args, numArgs);
+
+		if (hasAmpersand) {
+			args[numArgs-1] = NULL;
+		}
 
 		pid = fork();
-
-		if (pid == 0) {
-			handleChildProcess(command, args, &shouldRun);
+		if (pid < 0) { return 1; }
+		else if (pid == 0) {
+			handleChildProcess(args, numArgs, &runFlag);
 		}	else {
-			handleParentProcess(inBackground, status, args, prevArgs);
+			handleParentProcess(backgroundFlag, status);
+			copyInput(tempInput, prevInput);
 		}
-		printf("pid: %d, shouldRun: %d\n", pid, shouldRun);
+		printf("pid: %d, runFlag: %d\n", pid, runFlag);
   }
 
   return 0;
