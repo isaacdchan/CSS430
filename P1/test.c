@@ -6,7 +6,7 @@
 #define MAX_LINE 80 /* The maximum length command */
 
 void copyInput(char* src, char* dest) {
-	for (int i=0; i<256; i++) {
+	for (int i = 0; i < 256; i++) {
 		dest[i] = src[i];
 	}
 }
@@ -38,10 +38,10 @@ int isExitCommand(char** args) {
 
 	return res;
 }
-
 int findSymbolIndex(char** args, int numArgs, char* symbol) {
-	for (int i=0; i<numArgs; i++) {
+	for (int i = 0; i < numArgs; i++) {
 		if (strcmp(args[i], symbol) == 0) {
+			printf("Found it!\n");
 			return i;
 		}
 	}
@@ -54,43 +54,45 @@ int hasAmpersand(char** args, int numArgs) {
 }
 // ------------------------------------
 
-void logArgs(char** args, int numArgs, int backgroundFlag, int redirectInFlag, int redirectOutFlag, int pipeFlag) {
+// void logArgs(char** args, int numArgs, int backgroundFlag, int lessThanIndex, int greaterThanIndex, int pipeIndex) {
+void logArgs(char** args, int numArgs) {
 	printf("--------LOG-------\n");
 	printf("Command: %s\n", args[0]);
-	for (int i=1; i < numArgs; i++) {
+	for (int i = 1; i < numArgs; i++) {
 		printf("\tParam %d: %s\n", i, args[i]);
 	}
-	printf("Background: %d | Redirect In: %d | Redirect Out : %d | Pipe: %d\n",
-					backgroundFlag, redirectInFlag, redirectOutFlag, pipeFlag);
 	printf("------------------\n");
 }
 
-void splitArgs(char** args, char** args1, char** args2, int delimeter) {
-	for (int i=0; i<delimeter; i++) {
+void splitArgs(char** args, int numArgs, char** args1, char** args2, int delimeter) {
+	for (int i = 0; i < delimeter; i++) {
 		args1[i] = args[i];
-		args2[i] = args[i+delimeter];
+	}
+
+	int i = 0;
+	for (int j = delimeter + 1; j < numArgs; j++, i++) {
+		args2[i] = args[j];
 	}
 
 	args1[delimeter] = NULL;
-	args2[delimeter] = NULL;
+	args2[numArgs] = NULL;
 }
 
 void handleChildProcess(char** args, int numArgs, int* runFlag) {
 	printf("In child\n");
-	char* command = args[0];
 
-	int lessThanIndex = findSymbolIndex(args, numArgs, "<");
-	int greaterThanIndex = findSymbolIndex(args, numArgs, ">");
-	int pipeIndex = findSymbolIndex(args, numArgs, "|");
+	int lessThanIndex = findSymbolIndex(args, numArgs, (char*)"<");
+	int greaterThanIndex = findSymbolIndex(args, numArgs, (char*)">");
+	int pipeIndex = findSymbolIndex(args, numArgs, (char*)"|");
 
 	// assume there isn't both < and > in args
 	if ((lessThanIndex != -1) || (greaterThanIndex != -1)) {
 		char* args1[MAX_LINE/2 + 1];
 		char* args2[MAX_LINE/2 + 1];
-
 		FILE *fp;
+		
 		if (lessThanIndex != -1) {
-			splitArgs(args, args1, args2, lessThanIndex);
+			splitArgs(args, numArgs, args1, args2, lessThanIndex);
 
 			fp = fopen(args1[0], "r");
 			if (fp == NULL) {
@@ -102,7 +104,7 @@ void handleChildProcess(char** args, int numArgs, int* runFlag) {
 			fclose(fp);
 			execvp(args2[0], args2);
 		} else { // (greaterThanIndex != -1)
-			splitArgs(args, args1, args2, greaterThanIndex);
+			splitArgs(args, numArgs, args1, args2, greaterThanIndex);
 
 			fp = fopen(args2[0], "w");
 			if (fp == NULL) {
@@ -116,8 +118,9 @@ void handleChildProcess(char** args, int numArgs, int* runFlag) {
 		fclose(fp);
 	}
 
-	int rc = execvp(command, args);
-	if (rc < 0) { return 2; }
+	int rc = execvp(args[0], args);
+	printf("RC: %d\n", rc);
+	if (rc < 0) { return; }
 	*runFlag = 0;
 	printf("Finished child\n");
 }
@@ -161,7 +164,7 @@ int main(void) {
 		runFlag = !isExitCommand(args);
 		backgroundFlag = hasAmpersand(args, numArgs);
 
-		if (hasAmpersand) {
+		if (backgroundFlag) {
 			args[numArgs-1] = NULL;
 		}
 

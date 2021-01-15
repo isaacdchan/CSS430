@@ -1,0 +1,5 @@
+a.out
+compile_and_run.sh
+daniel_ish.c
+out.txt
+test.c
