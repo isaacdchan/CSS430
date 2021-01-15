@@ -41,7 +41,6 @@ int isExitCommand(char** args) {
 int findSymbolIndex(char** args, int numArgs, char* symbol) {
 	for (int i = 0; i < numArgs; i++) {
 		if (strcmp(args[i], symbol) == 0) {
-			printf("Found it!\n");
 			return i;
 		}
 	}
@@ -75,63 +74,83 @@ void splitArgs(char** args, int numArgs, char** args1, char** args2, int delimet
 	}
 
 	args1[delimeter] = NULL;
-	args2[numArgs] = NULL;
+	args2[numArgs - delimeter - 1] = NULL;
 }
 
 void handleChildProcess(char** args, int numArgs, int* runFlag) {
-	printf("In child\n");
+	char* args1[MAX_LINE/2 + 1];
+	char* args2[MAX_LINE/2 + 1];
+	FILE *fp;
 
 	int lessThanIndex = findSymbolIndex(args, numArgs, (char*)"<");
 	int greaterThanIndex = findSymbolIndex(args, numArgs, (char*)">");
 	int pipeIndex = findSymbolIndex(args, numArgs, (char*)"|");
 
 	// assume there isn't both < and > in args
-	if ((lessThanIndex != -1) || (greaterThanIndex != -1)) {
-		char* args1[MAX_LINE/2 + 1];
-		char* args2[MAX_LINE/2 + 1];
-		FILE *fp;
-		
+	if (lessThanIndex != -1 || greaterThanIndex != -1) {
+		int splitIndex;
+		char* accessMode;
+		int fd2;
+
 		if (lessThanIndex != -1) {
-			splitArgs(args, numArgs, args1, args2, lessThanIndex);
-
-			fp = fopen(args1[0], "r");
-			if (fp == NULL) {
-				printf("%s: No such file or directory\n", args1[0]);
-				return;
-			}
-
-			dup2(fileno(fp), STDIN_FILENO); // link fp1 to stdin
-			fclose(fp);
-			execvp(args2[0], args2);
-		} else { // (greaterThanIndex != -1)
-			splitArgs(args, numArgs, args1, args2, greaterThanIndex);
-
-			fp = fopen(args2[0], "w");
-			if (fp == NULL) {
-				printf("%s: No such file or directory\n", args2[0]);
-				return;
-			}
-
-			dup2(fileno(fp), STDOUT_FILENO); // link fp1 to stdin
-			execvp(args1[0], args1);
+			splitIndex = lessThanIndex;
+			accessMode = (char*) "r";
+			fd2 = 0;
+		} else { //greaterThanIndex != -1
+			splitIndex = greaterThanIndex;
+			accessMode = (char*) "w";
+			fd2 = 1;
 		}
+
+		splitArgs(args, numArgs, args1, args2, splitIndex);
+
+		fp = fopen(args2[0], accessMode);
+		if (fp == NULL) {
+			printf("ERR: File not found: %s\n", args2[0]);
+			return;
+		}
+
+		dup2(fileno(fp), fd2);
 		fclose(fp);
+
+		int rc = execvp(args1[0], args1);
+		if (rc < 0) { return; }
+
+	} else if (pipeIndex != -1) {
+		splitArgs(args, numArgs, args1, args2, pipeIndex);
+		int pfd[2]; // open read/write pipe fd
+		pipe(pfd); // pipe 
+
+		if (fork() == 0) {      
+			close(STDOUT_FILENO); //close stdout 
+			dup(pfd[1]); //assign stdout to copy fd pipe for write 
+			close(pfd[1]); // close write end of pipe
+
+			execvp(args1[0], args1); // exec on first set of arguments before pipe
+		}
+
+		if (fork() == 0) {
+			close(STDIN_FILENO); // close stdin
+			dup(pfd[0]); // assign stdin to copy fd pipe for read
+			close(pfd[0]); // close read end of pipe
+
+			execvp(args2[0], args2); // exec on second set of arguments after pipe
+		}
+		
+		wait(NULL);	// wait 
+
+	} else {
+		int rc = execvp(args[0], args);
+		if (rc < 0) { return; }
 	}
 
-	int rc = execvp(args[0], args);
-	printf("RC: %d\n", rc);
-	if (rc < 0) { return; }
 	*runFlag = 0;
-	printf("Finished child\n");
 }
 
 void handleParentProcess(int backgroundFlag, int status) {
-	printf("In parent\n");
 	if (!backgroundFlag) {
 		wait(&status);
 	}
-
-	printf("Finished parent\n");
 }
 
 int main(void) {
@@ -176,7 +195,6 @@ int main(void) {
 			handleParentProcess(backgroundFlag, status);
 			copyInput(tempInput, prevInput);
 		}
-		printf("pid: %d, runFlag: %d\n", pid, runFlag);
   }
 
   return 0;
