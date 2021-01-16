@@ -1,5 +1,9 @@
-a.out
-compile_and_run.sh
-daniel_ish.c
-out.txt
-test.c
+total 48
+drwxr-xr-x 3 isaacdchan isaacdchan  4096 Jan 15 18:52 .
+drwxr-xr-x 7 isaacdchan isaacdchan  4096 Jan 12 22:52 ..
+drwxr-xr-x 2 isaacdchan isaacdchan  4096 Jan 14 17:20 .vscode
+-rwxr-xr-x 1 isaacdchan isaacdchan 13648 Jan 15 18:52 a.out
+-rw-r--r-- 1 isaacdchan isaacdchan    44 Jan 13 18:05 compile_and_run.sh
+-rw-r--r-- 1 isaacdchan isaacdchan  6284 Jan 14 19:03 daniel_ish.c
+-rw-r--r-- 1 isaacdchan isaacdchan     0 Jan 15 18:55 out.txt
+-rw-r--r-- 1 isaacdchan isaacdchan  4427 Jan 15 18:52 test.c

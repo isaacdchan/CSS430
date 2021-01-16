@@ -5,27 +5,28 @@
 
 #define MAX_LINE 80 /* The maximum length command */
 
+// function to deep copy array
 void copyInput(char* src, char* dest) {
 	for (int i = 0; i < 256; i++) {
 		dest[i] = src[i];
 	}
 }
 
+// tokenize the raw user input and store it in the args array
 int parseAndCountArgs(char* input, char** args) {
-	static char* saveState;
-
+	// possible delimeters. include \n to right strip
 	const char delim[] = " \t\r\n\v\f";
+	// keep track of number of arguments to return
 	int i = 0;
 
-	args[i] = strtok(input, delim); // tokenize cmd
+	args[i] = strtok(input, delim);
 	while (args[i] != NULL) {
-		i++; // increment to loop
+		i++;
 		args[i] = strtok(NULL, delim); // store null terminator at end of array
 	}
 	
 	return i;
 }
-
 // SYMBOL DETECTION ALGORITHMS
 int isRepeatCommand(char* input) {
 	int res = strcmp(input, "!!\n") == 0;
@@ -38,6 +39,7 @@ int isExitCommand(char** args) {
 
 	return res;
 }
+// symbol parameter is the symbol you want to search for
 int findSymbolIndex(char** args, int numArgs, char* symbol) {
 	for (int i = 0; i < numArgs; i++) {
 		if (strcmp(args[i], symbol) == 0) {
@@ -45,11 +47,6 @@ int findSymbolIndex(char** args, int numArgs, char* symbol) {
 		}
 	}
 	return -1;
-}
-int hasAmpersand(char** args, int numArgs) {
-	char* lastArg = args[numArgs - 1];
-	int res = strcmp(lastArg, "&") == 0;
-	return res;
 }
 // ------------------------------------
 
@@ -63,6 +60,8 @@ void logArgs(char** args, int numArgs) {
 	printf("------------------\n");
 }
 
+// given an args array and a delimeter, place the args before the delimeter in args1
+// and args after the deliemeter into args2
 void splitArgs(char** args, int numArgs, char** args1, char** args2, int delimeter) {
 	for (int i = 0; i < delimeter; i++) {
 		args1[i] = args[i];
@@ -78,24 +77,31 @@ void splitArgs(char** args, int numArgs, char** args1, char** args2, int delimet
 }
 
 void handleChildProcess(char** args, int numArgs, int* runFlag) {
+	// used if there is a redirection or pipe 
 	char* args1[MAX_LINE/2 + 1];
 	char* args2[MAX_LINE/2 + 1];
 	FILE *fp;
 
+	// check if user wants to redirect from a file
 	int lessThanIndex = findSymbolIndex(args, numArgs, (char*)"<");
+	// check if user wants to redirect into a file
 	int greaterThanIndex = findSymbolIndex(args, numArgs, (char*)">");
+	// check if user wants to pipe one process into another
 	int pipeIndex = findSymbolIndex(args, numArgs, (char*)"|");
 
 	// assume there isn't both < and > in args
+	// it's not guaranteed that a delimeter will be equidistant between left and right
 	if (lessThanIndex != -1 || greaterThanIndex != -1) {
 		int splitIndex;
 		char* accessMode;
 		int fd2;
 
+		// if redirecting from a file, will need to read in
 		if (lessThanIndex != -1) {
 			splitIndex = lessThanIndex;
 			accessMode = (char*) "r";
 			fd2 = STDIN_FILENO;
+		// if redirecting into a file, will need to write
 		} else { //greaterThanIndex != -1
 			splitIndex = greaterThanIndex;
 			accessMode = (char*) "w";
@@ -104,14 +110,16 @@ void handleChildProcess(char** args, int numArgs, int* runFlag) {
 
 		splitArgs(args, numArgs, args1, args2, splitIndex);
 
+		// open file to read OR write
 		fp = fopen(args2[0], accessMode);
 		if (fp == NULL) {
 			printf("ERR: File not found: %s\n", args2[0]);
 			return;
 		}
 
+		// either dup2 stdout to file write
+		// or dup2 stdin to file read
 		dup2(fileno(fp), fd2);
-		fclose(fp);
 
 		int rc = execvp(args1[0], args1);
 		if (rc < 0) { return; }
@@ -119,34 +127,34 @@ void handleChildProcess(char** args, int numArgs, int* runFlag) {
 	} else if (pipeIndex != -1) {
 		splitArgs(args, numArgs, args1, args2, pipeIndex);
 		int pfd[2]; // open read/write pipe fd
-		pipe(pfd); // pipe 
+		pipe(pfd); // pipe to connect the two processes
 
-		// parent receives from child
-		if (fork() == 0) {
-			printf("1\n");
-			close(pfd[1]); //close stdout
-			dup2(0, pfd[0]);
+		int pid = fork(); // fork
 
-			int rc = execvp(args2[0], args2);
-			if (rc < 0) {
-				printf("Command Failed: %s\n", args2[0]);
-				return;
-			}
-		}
-
-		// child sends to parent
-		if (fork() == 0) {
-			printf("2\n");
+		if (pid < 0) { return; }
+		// child process who will be be executing command on the left of the vert bar
+		// and then writing results to the pipe
+		else if (pid == 0) {
 			close(pfd[0]);
 			dup2(pfd[1], 1);
-
 			int rc = execvp(args1[0], args1);
+
+			if (rc < 0) {
+				printf("Command Failed: %s\n", args1[0]);
+				return;
+			}
+		} else { //parent
+			// child process who will be be reading the child's results from the pipe
+			// and executing the command on the right side of the bar
+			close(pfd[1]);
+			wait(NULL);
+			dup2(pfd[0], 0);
+			int rc = execvp(args2[0], args2);
 			if (rc < 0) {
 				printf("Command Failed: %s\n", args1[0]);
 				return;
 			}
 		}
-		wait(NULL);
 	} else {
 		int rc = execvp(args[0], args);
 		if (rc < 0) { return; }
@@ -155,8 +163,10 @@ void handleChildProcess(char** args, int numArgs, int* runFlag) {
 	*runFlag = 0;
 }
 
-void handleParentProcess(int backgroundFlag, int status) {
-	if (!backgroundFlag) {
+// blocking parent process that waits until the child process finishes
+// if background flag is 1, parent can create another parent process
+void handleParentProcess(int ampersandIndex, int status) {
+	if (ampersandIndex == -1) {
 		wait(&status);
 	}
 }
@@ -166,40 +176,42 @@ int main(void) {
 	int numArgs;
 	char input[256];
 	char prevInput[256];
-	char tempInput[256];
 	const int status = 1;
   int runFlag = 1;
-  int backgroundFlag;
+  int ampersandIndex;
 	int repeatFlag;
 	int pid;
 
   while (runFlag) {
     printf("ish>");
-		fgets(input, 256, stdin);
+		fgets(input, 256, stdin); // read user input
     fflush(stdout);
 
-		repeatFlag = isRepeatCommand(input);
-		if (repeatFlag) {
-			copyInput(tempInput, input);
+		// first check if the raw user input is "!!"
+		// if so, replace user input with previously stored imnput
+		if (isRepeatCommand(input)) {
+			copyInput(prevInput, input);
 		} else {
-			copyInput(input, tempInput);
+			copyInput(input, prevInput);
 		}
 
-		numArgs = parseAndCountArgs(input, args);
+		// check if the user wants to exit
 		runFlag = !isExitCommand(args);
-		backgroundFlag = hasAmpersand(args, numArgs);
-
-		if (backgroundFlag) {
+		// tokenize input into args
+		numArgs = parseAndCountArgs(input, args);
+		// check if the user wants the command to run in the background
+		ampersandIndex = findSymbolIndex(args, numArgs, (char*)"&");
+		// if so, rightstrip the ampersand symbol
+		if (ampersandIndex != -1) {
 			args[numArgs-1] = NULL;
 		}
 
 		pid = fork();
 		if (pid < 0) { return 1; }
-		else if (pid == 0) {
+		else if (pid == 0) { // child
 			handleChildProcess(args, numArgs, &runFlag);
-		}	else {
-			handleParentProcess(backgroundFlag, status);
-			copyInput(tempInput, prevInput);
+		}	else { // parent
+			handleParentProcess(ampersandIndex, status);
 		}
   }
 
