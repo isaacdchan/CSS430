@@ -95,11 +95,11 @@ void handleChildProcess(char** args, int numArgs, int* runFlag) {
 		if (lessThanIndex != -1) {
 			splitIndex = lessThanIndex;
 			accessMode = (char*) "r";
-			fd2 = 0;
+			fd2 = STDIN_FILENO;
 		} else { //greaterThanIndex != -1
 			splitIndex = greaterThanIndex;
 			accessMode = (char*) "w";
-			fd2 = 1;
+			fd2 = STDOUT_FILENO;
 		}
 
 		splitArgs(args, numArgs, args1, args2, splitIndex);
@@ -121,24 +121,32 @@ void handleChildProcess(char** args, int numArgs, int* runFlag) {
 		int pfd[2]; // open read/write pipe fd
 		pipe(pfd); // pipe 
 
-		if (fork() == 0) {      
-			close(STDOUT_FILENO); //close stdout 
-			dup(pfd[1]); //assign stdout to copy fd pipe for write 
-			close(pfd[1]); // close write end of pipe
-
-			execvp(args1[0], args1); // exec on first set of arguments before pipe
-		}
-
+		// parent receives from child
 		if (fork() == 0) {
-			close(STDIN_FILENO); // close stdin
-			dup(pfd[0]); // assign stdin to copy fd pipe for read
-			close(pfd[0]); // close read end of pipe
+			printf("1\n");
+			close(pfd[1]); //close stdout
+			dup2(0, pfd[0]);
 
-			execvp(args2[0], args2); // exec on second set of arguments after pipe
+			int rc = execvp(args2[0], args2);
+			if (rc < 0) {
+				printf("Command Failed: %s\n", args2[0]);
+				return;
+			}
 		}
-		
-		wait(NULL);	// wait 
 
+		// child sends to parent
+		if (fork() == 0) {
+			printf("2\n");
+			close(pfd[0]);
+			dup2(pfd[1], 1);
+
+			int rc = execvp(args1[0], args1);
+			if (rc < 0) {
+				printf("Command Failed: %s\n", args1[0]);
+				return;
+			}
+		}
+		wait(NULL);
 	} else {
 		int rc = execvp(args[0], args);
 		if (rc < 0) { return; }
@@ -154,16 +162,14 @@ void handleParentProcess(int backgroundFlag, int status) {
 }
 
 int main(void) {
-  char* args[MAX_LINE/2 + 1]; // command line arguments
+  char* args[MAX_LINE/2 + 1];
 	int numArgs;
-	char* command = NULL;
-	char* prevCommand = NULL;
 	char input[256];
 	char prevInput[256];
 	char tempInput[256];
 	const int status = 1;
-  int runFlag = 1; // flag to determine when to exit program
-  int backgroundFlag; // flag to determine when to exit program
+  int runFlag = 1;
+  int backgroundFlag;
 	int repeatFlag;
 	int pid;
 
@@ -199,4 +205,3 @@ int main(void) {
 
   return 0;
 }
-
