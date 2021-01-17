@@ -5,6 +5,16 @@
 
 #define MAX_LINE 80 /* The maximum length command */
 
+// void logArgs(char** args, int numArgs, int backgroundFlag, int lessThanIndex, int greaterThanIndex, int pipeIndex) {
+void logArgs(char** args, int numArgs) {
+	printf("--------LOG-------\n");
+	printf("Command: %s\n", args[0]);
+	for (int i = 1; i < numArgs; i++) {
+		printf("\tParam %d: %s\n", i, args[i]);
+	}
+	printf("------------------\n");
+}
+
 // function to deep copy array
 void copyInput(char* src, char* dest) {
 	for (int i = 0; i < 256; i++) {
@@ -47,17 +57,6 @@ int findSymbolIndex(char** args, int numArgs, char* symbol) {
 		}
 	}
 	return -1;
-}
-// ------------------------------------
-
-// void logArgs(char** args, int numArgs, int backgroundFlag, int lessThanIndex, int greaterThanIndex, int pipeIndex) {
-void logArgs(char** args, int numArgs) {
-	printf("--------LOG-------\n");
-	printf("Command: %s\n", args[0]);
-	for (int i = 1; i < numArgs; i++) {
-		printf("\tParam %d: %s\n", i, args[i]);
-	}
-	printf("------------------\n");
 }
 
 // given an args array and a delimeter, place the args before the delimeter in args1
@@ -195,10 +194,10 @@ int main(void) {
 			copyInput(input, prevInput);
 		}
 
-		// check if the user wants to exit
-		runFlag = !isExitCommand(args);
 		// tokenize input into args
 		numArgs = parseAndCountArgs(input, args);
+		// check if the user wants to exit
+		runFlag = !isExitCommand(args);
 		// check if the user wants the command to run in the background
 		ampersandIndex = findSymbolIndex(args, numArgs, (char*)"&");
 		// if so, rightstrip the ampersand symbol
