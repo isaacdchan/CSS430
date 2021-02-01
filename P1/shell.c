@@ -182,6 +182,7 @@ int main(void) {
 	int pid;
 
   while (runFlag) {
+		sleep(1); // stdout line orientation sync
     printf("ish>");
 		fgets(input, 256, stdin); // read user input
     fflush(stdout);
