@@ -12,4 +12,8 @@ struct node {
 // insert and delete operations.
 void insert(struct node **head, Task *task);
 void delete(struct node **head, Task *task);
-void traverse(struct node *head);
+int getSize(struct node* head);
+void sortByName(struct node* head);
+void sortByPriority(struct node* head);
+void sortByBurst(struct node* head);
+void freeList(struct node* head);
