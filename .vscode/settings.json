@@ -3,5 +3,9 @@
 		"ostream": "cpp",
 		"iostream": "cpp",
 		"queue": "cpp"
+	},
+	"files.exclude": {
+		"**/**.class": true,
+		"**/**.o": true
 	}
 }

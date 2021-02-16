@@ -1,0 +1,3 @@
+//wsl$/Ubuntu/home/isaacdchan/UWB/CSS430/p2/part1/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+//wsl$/Ubuntu/home/isaacdchan/UWB/CSS430/p2/part1/cmake-build-debug/CMakeFiles/edit_cache.dir
+//wsl$/Ubuntu/home/isaacdchan/UWB/CSS430/p2/part1/cmake-build-debug/CMakeFiles/part1.dir

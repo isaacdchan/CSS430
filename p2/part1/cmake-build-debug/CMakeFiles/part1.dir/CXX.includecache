@@ -1,0 +1,30 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+//wsl$/Ubuntu/home/isaacdchan/UWB/CSS430/p2/part1/driver.cpp
+sthread.cpp
+//wsl$/Ubuntu/home/isaacdchan/UWB/CSS430/p2/part1/sthread.cpp
+
+//wsl$/Ubuntu/home/isaacdchan/UWB/CSS430/p2/part1/sthread.cpp
+setjmp.h
+-
+signal.h
+-
+unistd.h
+-
+stdio.h
+-
+stdlib.h
+-
+iostream
+-
+string.h
+-
+queue
+-
+

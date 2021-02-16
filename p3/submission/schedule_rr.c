@@ -30,7 +30,7 @@ void createTaskArray(int numTasks) {
 }
 
 void schedule() {
-//    int current_time = 0;
+   int current_time = 0;
     sortByName(head);
 
     int numTasks = getSize(head);
@@ -48,14 +48,17 @@ void schedule() {
 
             burstRemaining = task->burst;
             // quantum of 10
-            if (burstRemaining - 10 <= 0) {
+            if (burstRemaining <= 10) {
                 task->burst = 0;
                 completedTasks++;
+                current_time += burstRemaining;
                 run(task, burstRemaining);
             } else {
                 task->burst -= 10;
+                current_time += 10;
                 run(task, 10);
             }
+            printf("Time is now: %d\n", current_time);
         }
         if (completedTasks == numTasks) {
             break;

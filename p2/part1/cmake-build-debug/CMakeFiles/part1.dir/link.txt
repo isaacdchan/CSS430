@@ -1,0 +1,1 @@
+/usr/bin/c++.exe -g  -Wl,--enable-auto-import CMakeFiles/part1.dir/driver.cpp.o  -o part1.exe -Wl,--out-implib,libpart1.dll.a -Wl,--major-image-version,0,--minor-image-version,0 

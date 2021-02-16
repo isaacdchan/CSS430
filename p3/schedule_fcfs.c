@@ -28,6 +28,7 @@ void schedule() {
         Task* task = temp->task;
         run(task, task->burst);
         current_time += task->burst;
+        printf("Time is now: %d\n", current_time);
         temp = temp->next;
     }
 
