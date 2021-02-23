@@ -1,0 +1,26 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/isaacdchan/UWB/CSS430/p4/Shop.cpp
+Shop.h
+/home/isaacdchan/UWB/CSS430/p4/Shop.h
+pthread.h
+-
+
+/home/isaacdchan/UWB/CSS430/p4/Shop.h
+pthread.h
+-
+iostream
+-
+sstream
+-
+string
+-
+queue
+-
+

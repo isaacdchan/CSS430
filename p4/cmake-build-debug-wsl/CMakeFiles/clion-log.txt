@@ -1,0 +1,4 @@
+/usr/local/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=/usr/bin/g++ -G "CodeBlocks - Unix Makefiles" /home/isaacdchan/UWB/CSS430/p4
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/isaacdchan/UWB/CSS430/p4/cmake-build-debug-wsl

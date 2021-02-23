@@ -1,0 +1,1 @@
+/usr/bin/g++  -pthread -g   CMakeFiles/p4.dir/driver.cpp.o CMakeFiles/p4.dir/Shop.cpp.o  -o p4 
