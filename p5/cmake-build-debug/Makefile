@@ -140,32 +140,194 @@ p5/fast:
 	$(MAKE) -f CMakeFiles/p5.dir/build.make CMakeFiles/p5.dir/build
 .PHONY : p5/fast
 
-main.o: main.cpp.o
+bfs.o: bfs.c.o
+
+.PHONY : bfs.o
+
+# target to build an object file
+bfs.c.o:
+	$(MAKE) -f CMakeFiles/p5.dir/build.make CMakeFiles/p5.dir/bfs.c.o
+.PHONY : bfs.c.o
+
+bfs.i: bfs.c.i
+
+.PHONY : bfs.i
+
+# target to preprocess a source file
+bfs.c.i:
+	$(MAKE) -f CMakeFiles/p5.dir/build.make CMakeFiles/p5.dir/bfs.c.i
+.PHONY : bfs.c.i
+
+bfs.s: bfs.c.s
+
+.PHONY : bfs.s
+
+# target to generate assembly for a file
+bfs.c.s:
+	$(MAKE) -f CMakeFiles/p5.dir/build.make CMakeFiles/p5.dir/bfs.c.s
+.PHONY : bfs.c.s
+
+bio.o: bio.c.o
+
+.PHONY : bio.o
+
+# target to build an object file
+bio.c.o:
+	$(MAKE) -f CMakeFiles/p5.dir/build.make CMakeFiles/p5.dir/bio.c.o
+.PHONY : bio.c.o
+
+bio.i: bio.c.i
+
+.PHONY : bio.i
+
+# target to preprocess a source file
+bio.c.i:
+	$(MAKE) -f CMakeFiles/p5.dir/build.make CMakeFiles/p5.dir/bio.c.i
+.PHONY : bio.c.i
+
+bio.s: bio.c.s
+
+.PHONY : bio.s
+
+# target to generate assembly for a file
+bio.c.s:
+	$(MAKE) -f CMakeFiles/p5.dir/build.make CMakeFiles/p5.dir/bio.c.s
+.PHONY : bio.c.s
+
+deb.o: deb.c.o
+
+.PHONY : deb.o
+
+# target to build an object file
+deb.c.o:
+	$(MAKE) -f CMakeFiles/p5.dir/build.make CMakeFiles/p5.dir/deb.c.o
+.PHONY : deb.c.o
+
+deb.i: deb.c.i
+
+.PHONY : deb.i
+
+# target to preprocess a source file
+deb.c.i:
+	$(MAKE) -f CMakeFiles/p5.dir/build.make CMakeFiles/p5.dir/deb.c.i
+.PHONY : deb.c.i
+
+deb.s: deb.c.s
+
+.PHONY : deb.s
+
+# target to generate assembly for a file
+deb.c.s:
+	$(MAKE) -f CMakeFiles/p5.dir/build.make CMakeFiles/p5.dir/deb.c.s
+.PHONY : deb.c.s
+
+errors.o: errors.c.o
+
+.PHONY : errors.o
+
+# target to build an object file
+errors.c.o:
+	$(MAKE) -f CMakeFiles/p5.dir/build.make CMakeFiles/p5.dir/errors.c.o
+.PHONY : errors.c.o
+
+errors.i: errors.c.i
+
+.PHONY : errors.i
+
+# target to preprocess a source file
+errors.c.i:
+	$(MAKE) -f CMakeFiles/p5.dir/build.make CMakeFiles/p5.dir/errors.c.i
+.PHONY : errors.c.i
+
+errors.s: errors.c.s
+
+.PHONY : errors.s
+
+# target to generate assembly for a file
+errors.c.s:
+	$(MAKE) -f CMakeFiles/p5.dir/build.make CMakeFiles/p5.dir/errors.c.s
+.PHONY : errors.c.s
+
+fs.o: fs.c.o
+
+.PHONY : fs.o
+
+# target to build an object file
+fs.c.o:
+	$(MAKE) -f CMakeFiles/p5.dir/build.make CMakeFiles/p5.dir/fs.c.o
+.PHONY : fs.c.o
+
+fs.i: fs.c.i
+
+.PHONY : fs.i
+
+# target to preprocess a source file
+fs.c.i:
+	$(MAKE) -f CMakeFiles/p5.dir/build.make CMakeFiles/p5.dir/fs.c.i
+.PHONY : fs.c.i
+
+fs.s: fs.c.s
+
+.PHONY : fs.s
+
+# target to generate assembly for a file
+fs.c.s:
+	$(MAKE) -f CMakeFiles/p5.dir/build.make CMakeFiles/p5.dir/fs.c.s
+.PHONY : fs.c.s
+
+main.o: main.c.o
 
 .PHONY : main.o
 
 # target to build an object file
-main.cpp.o:
-	$(MAKE) -f CMakeFiles/p5.dir/build.make CMakeFiles/p5.dir/main.cpp.o
-.PHONY : main.cpp.o
+main.c.o:
+	$(MAKE) -f CMakeFiles/p5.dir/build.make CMakeFiles/p5.dir/main.c.o
+.PHONY : main.c.o
 
-main.i: main.cpp.i
+main.i: main.c.i
 
 .PHONY : main.i
 
 # target to preprocess a source file
-main.cpp.i:
-	$(MAKE) -f CMakeFiles/p5.dir/build.make CMakeFiles/p5.dir/main.cpp.i
-.PHONY : main.cpp.i
+main.c.i:
+	$(MAKE) -f CMakeFiles/p5.dir/build.make CMakeFiles/p5.dir/main.c.i
+.PHONY : main.c.i
 
-main.s: main.cpp.s
+main.s: main.c.s
 
 .PHONY : main.s
 
 # target to generate assembly for a file
-main.cpp.s:
-	$(MAKE) -f CMakeFiles/p5.dir/build.make CMakeFiles/p5.dir/main.cpp.s
-.PHONY : main.cpp.s
+main.c.s:
+	$(MAKE) -f CMakeFiles/p5.dir/build.make CMakeFiles/p5.dir/main.c.s
+.PHONY : main.c.s
+
+p5test.o: p5test.c.o
+
+.PHONY : p5test.o
+
+# target to build an object file
+p5test.c.o:
+	$(MAKE) -f CMakeFiles/p5.dir/build.make CMakeFiles/p5.dir/p5test.c.o
+.PHONY : p5test.c.o
+
+p5test.i: p5test.c.i
+
+.PHONY : p5test.i
+
+# target to preprocess a source file
+p5test.c.i:
+	$(MAKE) -f CMakeFiles/p5.dir/build.make CMakeFiles/p5.dir/p5test.c.i
+.PHONY : p5test.c.i
+
+p5test.s: p5test.c.s
+
+.PHONY : p5test.s
+
+# target to generate assembly for a file
+p5test.c.s:
+	$(MAKE) -f CMakeFiles/p5.dir/build.make CMakeFiles/p5.dir/p5test.c.s
+.PHONY : p5test.c.s
 
 # Help Target
 help:
@@ -176,9 +338,27 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... p5"
+	@echo "... bfs.o"
+	@echo "... bfs.i"
+	@echo "... bfs.s"
+	@echo "... bio.o"
+	@echo "... bio.i"
+	@echo "... bio.s"
+	@echo "... deb.o"
+	@echo "... deb.i"
+	@echo "... deb.s"
+	@echo "... errors.o"
+	@echo "... errors.i"
+	@echo "... errors.s"
+	@echo "... fs.o"
+	@echo "... fs.i"
+	@echo "... fs.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... p5test.o"
+	@echo "... p5test.i"
+	@echo "... p5test.s"
 .PHONY : help
 
 

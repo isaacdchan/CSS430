@@ -28,22 +28,24 @@ The Shop implementation is mostly unchanged. the only modifications were to inte
    * All barbers will begin in a sleeping state given no customers have been created yet
 3. For each customer in `num_customers`
    * Wait a random interval of time
-   * Enter the shop and check if the waiting queue is full. If so - leave shop and increment `num_rejections`
-   * If the queue is empty: check if a barber is available
-        * If a barber is available:
-            * wake them and update their `customer_id`
-            * wait until they finish servicing
-        * Else:
-            * Go to the end of the queue
-            * While waiting: if a barber signals that they are available and 
-              if the customer is next in line - see above `If` block
+   * Enter the shop and check if the queue is empty and if a barber is available
+       * If a barber is available:
+           * Wake them and update their `customer_id`
+           * Wait until they finish servicing
+       * Else:
+           * If the waiting queue is full:
+               * leave shop and increment `num_rejections`
+           * Else:
+               * Go to the end of the queue
+               * While waiting: if a barber signals that they are available and 
+             if the customer is next in line - see `If barber is available:`
 4. If a barber is woken up, check if the customer sat down and service them for `service_duration`
    * Signal the customer when done servicing and wait to be paid
 5. When a customer is signaled that the service is over, pay the barber and leave the shop
 6. When the barber is paid, set `customer_id = -1`
    * Check the queue. Sleep if queue is empty. Otherwise repeat step 4
 7. When all customers have been serviced or turned away, delete all barbers and the barber array
-    
+
 # Analysis
 
 One possible extension would be for each barber to keep track of 
@@ -55,4 +57,17 @@ every customer thread has to be woken up because they observe the
 same thread condition `barber_available`. They all check if it is their turn next and
 if not - they go back to waiting.
 
-I believe my Documentation already addresses my answers to Step 5 and 6.
+Approximately 95 waiting chairs were required for 1 barber service all 200 customers  
+* This result means that 95 waiting chairs are required for the barber to finish the first
+105 customers before no more customers arrived
+* The barber must finish `num_customers - (num_waiting_chairs * 2)` customers before the final customer arrives
+* If there were 201 customers, there's a good chance that while the barber was finishing
+customer 115, the final customer would have arrived, saw that all 95 chairs were occupied, and left
+
+Approximately 5 barbers were required to service all 200 customers without a waiting chair
+* This results means that 5 barbers (with this service time) are required to reach an equilibrium where any number
+of customers can arrive with no waiting chairs and still be served
+* This means that even if all 5 barbers are occupied, the probability that one of them will
+finish before the next customer arrives is close to 100%
+
+

@@ -1,3 +1,3 @@
 g++ driver.cpp Shop.cpp -o sleepingBarbers -lpthread
 
-./sleepingBarbers $1 1 10 1
+./sleepingBarbers $1 1 10 1000

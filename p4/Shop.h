@@ -18,11 +18,8 @@ struct Barber {
     pthread_cond_t sleeping_cond;
     int id;
     int customer_id;
-    bool working;
-    bool paid;
 
     Barber(int _id);
-    void log();
 };
 
 class Shop {
@@ -66,7 +63,7 @@ private:
     // mutex is used in conjunction with all conditional variables
     // originally created array of pthread_cond_t
     pthread_mutex_t mutex{};
-    pthread_cond_t cond_customers_waiting{};
+    pthread_cond_t barber_available{};
 
     void init();
 

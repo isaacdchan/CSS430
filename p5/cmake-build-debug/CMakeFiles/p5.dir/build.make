@@ -74,30 +74,120 @@ include CMakeFiles/p5.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/p5.dir/flags.make
 
-CMakeFiles/p5.dir/main.cpp.o: CMakeFiles/p5.dir/flags.make
-CMakeFiles/p5.dir/main.cpp.o: ../main.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/isaacdchan/UWB/CSS430/p5/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/p5.dir/main.cpp.o"
-	/usr/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/p5.dir/main.cpp.o -c /home/isaacdchan/UWB/CSS430/p5/main.cpp
+CMakeFiles/p5.dir/main.c.o: CMakeFiles/p5.dir/flags.make
+CMakeFiles/p5.dir/main.c.o: ../main.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/isaacdchan/UWB/CSS430/p5/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building C object CMakeFiles/p5.dir/main.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/p5.dir/main.c.o   -c /home/isaacdchan/UWB/CSS430/p5/main.c
 
-CMakeFiles/p5.dir/main.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/p5.dir/main.cpp.i"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/isaacdchan/UWB/CSS430/p5/main.cpp > CMakeFiles/p5.dir/main.cpp.i
+CMakeFiles/p5.dir/main.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/p5.dir/main.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/isaacdchan/UWB/CSS430/p5/main.c > CMakeFiles/p5.dir/main.c.i
 
-CMakeFiles/p5.dir/main.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/p5.dir/main.cpp.s"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/isaacdchan/UWB/CSS430/p5/main.cpp -o CMakeFiles/p5.dir/main.cpp.s
+CMakeFiles/p5.dir/main.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/p5.dir/main.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/isaacdchan/UWB/CSS430/p5/main.c -o CMakeFiles/p5.dir/main.c.s
+
+CMakeFiles/p5.dir/bfs.c.o: CMakeFiles/p5.dir/flags.make
+CMakeFiles/p5.dir/bfs.c.o: ../bfs.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/isaacdchan/UWB/CSS430/p5/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building C object CMakeFiles/p5.dir/bfs.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/p5.dir/bfs.c.o   -c /home/isaacdchan/UWB/CSS430/p5/bfs.c
+
+CMakeFiles/p5.dir/bfs.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/p5.dir/bfs.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/isaacdchan/UWB/CSS430/p5/bfs.c > CMakeFiles/p5.dir/bfs.c.i
+
+CMakeFiles/p5.dir/bfs.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/p5.dir/bfs.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/isaacdchan/UWB/CSS430/p5/bfs.c -o CMakeFiles/p5.dir/bfs.c.s
+
+CMakeFiles/p5.dir/bio.c.o: CMakeFiles/p5.dir/flags.make
+CMakeFiles/p5.dir/bio.c.o: ../bio.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/isaacdchan/UWB/CSS430/p5/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building C object CMakeFiles/p5.dir/bio.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/p5.dir/bio.c.o   -c /home/isaacdchan/UWB/CSS430/p5/bio.c
+
+CMakeFiles/p5.dir/bio.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/p5.dir/bio.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/isaacdchan/UWB/CSS430/p5/bio.c > CMakeFiles/p5.dir/bio.c.i
+
+CMakeFiles/p5.dir/bio.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/p5.dir/bio.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/isaacdchan/UWB/CSS430/p5/bio.c -o CMakeFiles/p5.dir/bio.c.s
+
+CMakeFiles/p5.dir/deb.c.o: CMakeFiles/p5.dir/flags.make
+CMakeFiles/p5.dir/deb.c.o: ../deb.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/isaacdchan/UWB/CSS430/p5/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building C object CMakeFiles/p5.dir/deb.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/p5.dir/deb.c.o   -c /home/isaacdchan/UWB/CSS430/p5/deb.c
+
+CMakeFiles/p5.dir/deb.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/p5.dir/deb.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/isaacdchan/UWB/CSS430/p5/deb.c > CMakeFiles/p5.dir/deb.c.i
+
+CMakeFiles/p5.dir/deb.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/p5.dir/deb.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/isaacdchan/UWB/CSS430/p5/deb.c -o CMakeFiles/p5.dir/deb.c.s
+
+CMakeFiles/p5.dir/errors.c.o: CMakeFiles/p5.dir/flags.make
+CMakeFiles/p5.dir/errors.c.o: ../errors.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/isaacdchan/UWB/CSS430/p5/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building C object CMakeFiles/p5.dir/errors.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/p5.dir/errors.c.o   -c /home/isaacdchan/UWB/CSS430/p5/errors.c
+
+CMakeFiles/p5.dir/errors.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/p5.dir/errors.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/isaacdchan/UWB/CSS430/p5/errors.c > CMakeFiles/p5.dir/errors.c.i
+
+CMakeFiles/p5.dir/errors.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/p5.dir/errors.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/isaacdchan/UWB/CSS430/p5/errors.c -o CMakeFiles/p5.dir/errors.c.s
+
+CMakeFiles/p5.dir/fs.c.o: CMakeFiles/p5.dir/flags.make
+CMakeFiles/p5.dir/fs.c.o: ../fs.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/isaacdchan/UWB/CSS430/p5/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building C object CMakeFiles/p5.dir/fs.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/p5.dir/fs.c.o   -c /home/isaacdchan/UWB/CSS430/p5/fs.c
+
+CMakeFiles/p5.dir/fs.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/p5.dir/fs.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/isaacdchan/UWB/CSS430/p5/fs.c > CMakeFiles/p5.dir/fs.c.i
+
+CMakeFiles/p5.dir/fs.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/p5.dir/fs.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/isaacdchan/UWB/CSS430/p5/fs.c -o CMakeFiles/p5.dir/fs.c.s
+
+CMakeFiles/p5.dir/p5test.c.o: CMakeFiles/p5.dir/flags.make
+CMakeFiles/p5.dir/p5test.c.o: ../p5test.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/isaacdchan/UWB/CSS430/p5/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building C object CMakeFiles/p5.dir/p5test.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/p5.dir/p5test.c.o   -c /home/isaacdchan/UWB/CSS430/p5/p5test.c
+
+CMakeFiles/p5.dir/p5test.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/p5.dir/p5test.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/isaacdchan/UWB/CSS430/p5/p5test.c > CMakeFiles/p5.dir/p5test.c.i
+
+CMakeFiles/p5.dir/p5test.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/p5.dir/p5test.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/isaacdchan/UWB/CSS430/p5/p5test.c -o CMakeFiles/p5.dir/p5test.c.s
 
 # Object files for target p5
 p5_OBJECTS = \
-"CMakeFiles/p5.dir/main.cpp.o"
+"CMakeFiles/p5.dir/main.c.o" \
+"CMakeFiles/p5.dir/bfs.c.o" \
+"CMakeFiles/p5.dir/bio.c.o" \
+"CMakeFiles/p5.dir/deb.c.o" \
+"CMakeFiles/p5.dir/errors.c.o" \
+"CMakeFiles/p5.dir/fs.c.o" \
+"CMakeFiles/p5.dir/p5test.c.o"
 
 # External object files for target p5
 p5_EXTERNAL_OBJECTS =
 
-p5: CMakeFiles/p5.dir/main.cpp.o
+p5: CMakeFiles/p5.dir/main.c.o
+p5: CMakeFiles/p5.dir/bfs.c.o
+p5: CMakeFiles/p5.dir/bio.c.o
+p5: CMakeFiles/p5.dir/deb.c.o
+p5: CMakeFiles/p5.dir/errors.c.o
+p5: CMakeFiles/p5.dir/fs.c.o
+p5: CMakeFiles/p5.dir/p5test.c.o
 p5: CMakeFiles/p5.dir/build.make
 p5: CMakeFiles/p5.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/isaacdchan/UWB/CSS430/p5/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable p5"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/isaacdchan/UWB/CSS430/p5/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Linking C executable p5"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/p5.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

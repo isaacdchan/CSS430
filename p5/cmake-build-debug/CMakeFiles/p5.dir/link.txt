@@ -1,1 +1,1 @@
-/usr/bin/g++  -g   CMakeFiles/p5.dir/main.cpp.o  -o p5 
+/usr/bin/cc -g   CMakeFiles/p5.dir/main.c.o CMakeFiles/p5.dir/bfs.c.o CMakeFiles/p5.dir/bio.c.o CMakeFiles/p5.dir/deb.c.o CMakeFiles/p5.dir/errors.c.o CMakeFiles/p5.dir/fs.c.o CMakeFiles/p5.dir/p5test.c.o  -o p5 

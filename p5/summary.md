@@ -10,7 +10,7 @@
 Unformatted BFS disk has 100 contiguous 512 byte sized blocks
 Lives on host filesystem as a file called `BFSDISK`
 
-A block's byte offset is calcualted using `block_index * 512`
+A block's byte offset is calculated using `block_index * 512`
 
 Blocks must be read/written to in entirety
 
@@ -25,12 +25,7 @@ i32 bioRead(i32 b_id, void* buf);
 i32 bioWrite(i32 b_id, void* buf); // read 
 ```
 
-## Supporting Files
-i32 is an alias for a 32-bit signed int. defined in *alias.h*
-
-Fatal errors print out the file and line number where the error occurred. See *error.c* and *error.h* for more details
-
-# <br>**fs** (User-Level Filesystem)
+# **fs** (User-Level Filesystem)
 Keeps track of which of the 100 blocks are free, which blocks are occupied by which files
 
 The blocks a file occupies will grow automatically as user writes more data to the file
@@ -97,13 +92,54 @@ i32 fsTell(i32 fd)
 ```
 
 # **bfs** (raw IO level)
-BFS uses the first 3 blocks (DBN 0,1,2) for  metablocks 
-100 blocks
-blocks files are stored and which blocks are free
+## Metablocks
+Uses the first 3 blocks out of 100
+records which blocks files are stored on and which blocks are free
 (hidden from fs interface)
 
-** SuperBlock
-** Inodes
-** Directory
+### SuperBlock
+`numBlocks` - const 100  
+`numINodes` - const 8 (8 max files per BFSDISK)  
+`numFree` - free blocks in BFSDISK  
+`fressListHead` - block_id of the first free block  
+* essentially HEADPTR of `freeList` (linked list containing the free blocks)
+* blocks contain u16 cells
+* first cell holds the block_id of the next free block (next pointer)
 
+### Inodes
+Max 8 per BFSDISK
+
+| Type | Field | Value |
+| ----------- | ----------- | ----------- |
+| i32 | size | 3172 |
+| i16 | physical_block_id0 | 3 |
+| i16 | physical_block_id1 | 5 |
+| i16 | physical_block_id2 | 8 |
+| i16 | physical_block_id3 | 7 |
+| i16 | physical_block_id4 | 20 |
+| i16 | indirect_block_id | 22 |
+
+Indirect block holds maximum 256 i16 that record the next 256 block_ids
+However, there are only 100 blocks total in BFSDISK
+
+### Directory
+mapping from fname to iNode number `iNum`
+filename is 15 chars max (+ trailing NUL)
+maximum 8 entries
+empty entries just contain NUL `\0`
+
+
+## Interface/Implementation
+
+### Writes
+3 possible circumstances
+* Inside - fits in the currently allocated bytes
+* Outside - none of the remaining space in the currently blocks are used
+* Overlap - some of the new bytes are placed into existing blocks. new 
+  blocks also need to be allocated
+
+## Supporting Files
+alias.h provides typedefs (`u8`, `i16`, `str`, `SEEKSET`)
+error.c
+* Fatal errors print out the file and line number where the error occurred. 
 
