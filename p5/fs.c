@@ -78,22 +78,6 @@ i32 fsOpen(str fname) {
 
 
 // ============================================================================
-// Read 'numb' bytes of data from the cursor in the file currently fsOpen'd on
-// File Descriptor 'fd' into 'buf'.  On success, return actual number of bytes
-// read (may be less than 'numb' if we hit EOF).  On failure, abort
-// ============================================================================
-i32 fsRead(i32 fd, i32 numb, void* buf) {
-
-  // ++++++++++++++++++++++++
-  // Insert your code here
-  // ++++++++++++++++++++++++
-
-  FATAL(ENYI);                                  // Not Yet Implemented!
-  return 0;
-}
-
-
-// ============================================================================
 // Move the cursor for the file currently open on File Descriptor 'fd' to the
 // byte-offset 'offset'.  'whence' can be any of:
 //
@@ -149,6 +133,46 @@ i32 fsSize(i32 fd) {
   return bfsGetSize(inum);
 }
 
+
+// ===========================================================================
+// Read 'numb' bytes of data from the cursor in the file currently fsOpen'd on
+// File Descriptor 'fd' into 'buf'.  On success, return actual number of bytes
+// read (may be less than 'numb' if we hit EOF).  On failure, abort
+// ============================================================================
+i32 fsRead(i32 fd, i32 numb, void* buf) {
+    i32 inum = bfsFdToInum(fd); // find inode
+    i32 ofte = bfsFindOFTE(inum); // find OFTE of inode
+    i32 size = bfsGetSize(inum); // get # of bytes of file
+    i32 startingFbn =  g_oft[ofte].curs / BYTESPERBLOCK; // get fbn the cursor is currently on
+    i32 maxFbn = size / BYTESPERBLOCK; // get the file's last fbn
+    i32 lastRequestedByte = g_oft[ofte].curs + numb;
+    i32 lastRequestedFbn = (lastRequestedByte / BYTESPERBLOCK); // get the last requested fbn
+
+    // the last requestedByte is not the last byte of a block
+    // there will be leftover bytes
+    if (lastRequestedByte % BYTESPERBLOCK != 0) {
+        lastRequestedFbn++;
+    }
+    if (lastRequestedFbn > maxFbn) { // the user wants more bytes than the file has remaining
+        lastRequestedFbn = maxFbn; // floor() the lastRequested fbn
+    }
+
+    i8 bufPart[512];
+    int offset = 0;
+    // looping all the fbns from the cursor's current fbn to the lastRequested fbn
+    for (i32 fbn = startingFbn; fbn < lastRequestedFbn; fbn++) {
+        // read all the bytes in the corresponding dbn into the buffer
+        if (bfsRead(inum, fbn, bufPart) != 0) {
+            FATAL(ENYI);
+        }
+        void* bufPartVoid = bufPart;
+        memcpy(buf + offset, bufPart, 512);
+        offset += 512;
+    }
+
+    fsSeek(fd, numb, SEEK_CUR);
+    return numb;
+}
 
 
 // ============================================================================

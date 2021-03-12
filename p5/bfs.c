@@ -329,7 +329,6 @@ i32 bfsLookupFile(str fname) {
 // Read FBN 'fbn' for the file whose inum is 'inum' into 'buf'
 // ============================================================================
 i32 bfsRead(i32 inum, i32 fbn, i8* buf) {
-
   if (inum < 0)       FATAL(EBADINUM);
   if (inum > MAXINUM) FATAL(EBADINUM);
   if (fbn  < 0)       FATAL(EBADFBN);

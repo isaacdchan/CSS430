@@ -21,7 +21,7 @@
 #define MAXINUM       NUMINODES - 1
 #define NUMMETA       3
 #define MINDBN        3
-#define BFSDISK       "BFSDISK"
+#define BFSDISK       "/home/isaacdchan/UWB/CSS430/p5/BFSDISK"
 #define NUMDIRECT     5
 #define NUMINDIRECT   BYTESPERBLOCK / sizeof(i16)
 #define MAXFBN        NUMDIRECT + NUMINDIRECT

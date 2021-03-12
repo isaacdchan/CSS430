@@ -60,7 +60,7 @@ void RepError(i32 e) {
     case ENULLPTR:
       printf("\nERROR: About to deref a null pointer \n");     pause(); break;
     case ENYI:
-      printf("\nERROR: Function Note Yet Implemented \n");     pause(); break;
+      printf("\nERROR: Function Not Yet Implemented \n");     pause(); break;
     case EOFTFULL:
       printf("\nERROR: OpenFileTable is full \n");             pause(); break;
     case EBADWHENCE:
