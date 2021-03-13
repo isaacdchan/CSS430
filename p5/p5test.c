@@ -234,6 +234,94 @@ void test6(i32 fd) {
   check(6, buf, 700, 324,  0);    // technically beyond EOF
 }
 
+// ============================================================================
+// Custom TEST 1 : Cursor = 30, # of fbn = 2
+// ============================================================================
+void testReadCustom(i32 fd) {
+  i8 buf[BUFSIZE];                  // buffer for reads and writes
+  fsSeek(fd, 512 + 30, SEEK_SET);     
+
+  i32 curs = fsTell(fd);
+  checkCursor(99, 512 + 30, curs);
+
+  memset(buf, 0, BUFSIZE);
+  i32 ret = fsRead(fd, 512, buf);   // read 512 bytes from current cursor
+  assert(ret == 512);
+  // for (int i = 0; i < 1000; i++) 
+  //   printf("Index %d: %d\n", i, buf[i]);
+  curs = fsTell(fd);
+  checkCursor(99, 512 + 30 + 512, curs);
+
+  check(99, buf, 0, 482, 1);
+  check(99, buf, 482, 30, 2);
+  check(99, buf, 512, 540, 0);
+}
+
+// ============================================================================
+// Custom TEST 2 : Cursor = 30, # of fbn > 2
+// ============================================================================
+void testReadCustom2(i32 fd) {
+  i8 buf[BUFSIZE];            
+  fsSeek(fd, 512 + 30, SEEK_SET);     
+
+  i32 curs = fsTell(fd);
+  checkCursor(98, 512 + 30, curs);
+
+  memset(buf, 0, BUFSIZE);
+  i32 ret = fsRead(fd, 2000, buf);   // read 2000 bytes from current cursor
+  assert(ret == 2000);
+  // for (int i = 0; i < 2200; i++) 
+  //   printf("Index %d: %d\n", i, buf[i]);
+  curs = fsTell(fd);
+  checkCursor(98, 512 + 30 + 2000, curs);
+  check(98, buf, 0, 482, 1);
+  check(98, buf, 482, 512, 2);
+  check(98, buf, 994, 512, 3);
+  check(98, buf, 1506, 494, 4);
+}
+
+// ============================================================================
+// Custom TEST 3 : Cursor = 30, # of fbn = 1
+// ============================================================================
+void testReadCustom3(i32 fd) {
+  i8 buf[BUFSIZE];            
+    fsSeek(fd, 512 + 30, SEEK_SET);     
+
+  i32 curs = fsTell(fd);
+  checkCursor(97, 512 + 30, curs);
+
+  memset(buf, 0, BUFSIZE);
+  i32 ret = fsRead(fd, 20, buf);   // read 20 bytes from current cursor
+  assert(ret == 20);
+  // for (int i = 0; i <50; i++) 
+  //   printf("Index %d: %d\n", i, buf[i]);
+  curs = fsTell(fd);
+  checkCursor(97, 512 + 30 + 20, curs);
+  check(97, buf, 0, 20, 1);
+  check(97, buf, 21, 30, 0);
+}
+
+// ============================================================================
+// Custom TEST 4 : Cursor = 500, # of fbn = 2, size end at the end of fbn 
+// ===========================================================================
+void testReadCustom4(i32 fd) {
+  i8 buf[BUFSIZE];            
+  fsSeek(fd, 512 + 500, SEEK_SET);     
+
+  i32 curs = fsTell(fd);
+  checkCursor(96, 512 + 500, curs);
+
+  memset(buf, 0, BUFSIZE);
+  i32 ret = fsRead(fd, 524, buf);   // read 524 bytes from current cursor
+  assert(ret == 524);
+  // for (int i = 0; i <600; i++) 
+  //   printf("Index %d: %d\n", i, buf[i]);
+  curs = fsTell(fd);
+  checkCursor(96, 512 + 500 + 524, curs);
+  check(96, buf, 0, 12, 1);
+  check(96, buf, 12, 512, 2);
+  check(96, buf, 524, 10, 0);
+}
 
 
 void p5test() {

@@ -146,31 +146,72 @@ i32 fsRead(i32 fd, i32 numb, void* buf) {
     i32 curs = g_oft[ofte].curs;
     i32 startingFbn =  curs / BYTESPERBLOCK; // get fbn the cursor is currently on
     i32 maxFbn = size / BYTESPERBLOCK; // get the file's last fbn
+<<<<<<< HEAD
     i32 lastRequestedByte = curs + numb;
-    i32 lastRequestedFbn = (lastRequestedByte / BYTESPERBLOCK); // get the last requested fbn
-
-    // the last requestedByte is not the last byte of a block
-    // there will be leftover bytes
-    if (lastRequestedByte % BYTESPERBLOCK != 0) {
-        lastRequestedFbn++;
+=======
+    if (g_oft[ofte].curs + numb > size) {
+      numb = size - g_oft[ofte].curs;
     }
+    i32 cursorAtTheFbn = g_oft[ofte].curs % BYTESPERBLOCK;
+    i32 lastRequestedByte = g_oft[ofte].curs + numb;
+>>>>>>> 25dc406a4ddb8877449009e7ef9b04b5c20a481e
+    i32 lastRequestedFbn = (lastRequestedByte / BYTESPERBLOCK); // get the last requested fbn
     if (lastRequestedFbn > maxFbn) { // the user wants more bytes than the file has remaining
         lastRequestedFbn = maxFbn; // floor() the lastRequested fbn
     }
+<<<<<<< HEAD
 
     i8 bufPart[BYTESPERBLOCK];
     int offset = 0;
+=======
+    printf("cursor %d\n", g_oft[ofte].curs);
+    printf("starting %d ending %d\n", startingFbn, lastRequestedFbn);
+    i8 tempBuf[BYTESPERBLOCK];
+>>>>>>> 25dc406a4ddb8877449009e7ef9b04b5c20a481e
     // looping all the fbns from the cursor's current fbn to the lastRequested fbn
-    for (i32 fbn = startingFbn; fbn < lastRequestedFbn; fbn++) {
+    if (startingFbn == lastRequestedFbn) {
+      if (bfsRead(inum, startingFbn, tempBuf) != 0) {
+            FATAL(ENYI);
+      }
+      memcpy(buf, tempBuf + cursorAtTheFbn, numb);
+      fsSeek(fd, numb, SEEK_CUR);
+      return numb;
+    }
+    int offset = 0; //where at the original buffer 
+    int tempBufOffset = 0; //where at the tempBuf start copy
+    int copySize = BYTESPERBLOCK; //size of copying
+    
+    for (i32 fbn = startingFbn; fbn <= lastRequestedFbn; fbn++) {
         // read all the bytes in the corresponding dbn into the buffer
+<<<<<<< HEAD
         if (bfsRead(inum, fbn, bufPart) != 0) {
             FATAL(EBADREAD);
+=======
+        if (bfsRead(inum, fbn, tempBuf) != 0) {
+            FATAL(ENYI);
+>>>>>>> 25dc406a4ddb8877449009e7ef9b04b5c20a481e
         }
-        void* bufPartVoid = bufPart;
-        memcpy(buf + offset, bufPart, 512);
-        offset += 512;
+        if (fbn == startingFbn) { //fisrt block 
+          tempBufOffset = cursorAtTheFbn;
+          copySize = BYTESPERBLOCK - cursorAtTheFbn;
+        }
+        if (fbn == lastRequestedFbn) { //last block
+          copySize = (numb - (BYTESPERBLOCK - cursorAtTheFbn)) % BYTESPERBLOCK;
+          if(copySize == 0) {
+            lastRequestedFbn--;
+          }
+        }
+        printf("COPY FBN: %d\n To the buf starting index: %d, and from partBuf at: %d, size: %d\n" , 
+        fbn, offset, tempBufOffset, copySize);
+        memcpy(buf + offset, tempBuf + tempBufOffset, copySize);            
+        if (fbn == startingFbn) { 
+        offset += copySize;
+        } else {
+          offset += BYTESPERBLOCK;
+        }
+        tempBufOffset = 0;
+        copySize = BYTESPERBLOCK;
     }
-
     fsSeek(fd, numb, SEEK_CUR);
     return numb;
 }
