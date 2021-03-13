@@ -38,13 +38,13 @@ i32 bfsAllocBlock(i32 inum, i32 fbn) {
 
     if (dbnIndirect == 0) {               // not yet allocated
       dbnIndirect = bfsFindFreeBlock();
-      pinode->indirect = dbn;
+      pinode->indirect = dbnIndirect;
     }
 
     bioRead(dbnIndirect, buf16);
-
     buf16[fbn - NUMDIRECT] = dbn;
     bioWrite(dbnIndirect, buf16);
+    bioWrite(DBNINODES, buf8);
   }
 
   return dbn;                             // allocated DBN
@@ -150,7 +150,6 @@ i32 bfsFbnToDbn(i32 inum, i32 fbn) {
 
   i16 buf[NUMINDIRECT] = {0};
   bioRead(inode.indirect, buf);
-
   i32 dbn = buf[fbn - NUMDIRECT];
   return (dbn == 0) ? ENODBN : dbn;
 }
@@ -329,6 +328,7 @@ i32 bfsLookupFile(str fname) {
 // Read FBN 'fbn' for the file whose inum is 'inum' into 'buf'
 // ============================================================================
 i32 bfsRead(i32 inum, i32 fbn, i8* buf) {
+
   if (inum < 0)       FATAL(EBADINUM);
   if (inum > MAXINUM) FATAL(EBADINUM);
   if (fbn  < 0)       FATAL(EBADFBN);

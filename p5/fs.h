@@ -19,5 +19,7 @@ i32 fsSeek  (i32 fd, i32 offset, i32   whence);
 i32 fsSize  (i32 fd);
 i32 fsTell  (i32 fd);
 i32 fsWrite (i32 fd, i32 numb,   void* buf);
+i32 max(i32 num1, i32 num2);
+i32 min(i32 num1, i32 num2);
 
 #endif
