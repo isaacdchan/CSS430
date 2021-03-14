@@ -218,12 +218,12 @@ void test6(i32 fd) {
   curs = fsTell(fd);
   checkCursor(6, 49 * 512 + 700, curs);
 
-  fsSeek(fd, 49 * BYTESPERBLOCK, SEEK_SET);     
+  fsSeek(fd, 49 * BYTESPERBLOCK, SEEK_SET);
 
   curs = fsTell(fd);
   checkCursor(6, 49 * 512, curs);
 
-  i32 ret = fsRead(fd, 2 * BYTESPERBLOCK, buf);
+  i32 ret = fsRead(fd, 4 * BYTESPERBLOCK, buf);
   assert(ret == 700);
 
   curs = fsTell(fd);
@@ -336,5 +336,4 @@ void p5test() {
   test6(fd);
 
   fsClose(fd);
-
 }

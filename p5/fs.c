@@ -97,6 +97,7 @@ i32 fsSeek(i32 fd, i32 offset, i32 whence) {
   switch(whence) {
     case SEEK_SET:
       g_oft[ofte].curs = offset;
+      i32 size = bfsGetSize(inum);
       break;
     case SEEK_CUR:
       g_oft[ofte].curs += offset;
@@ -146,7 +147,13 @@ i32 fsRead(i32 fd, i32 numb, void* buf) {
     i32 curs = g_oft[ofte].curs;
     i32 startingFbn =  curs / BYTESPERBLOCK; // get fbn the cursor is currently on
     i32 maxFbn = size / BYTESPERBLOCK; // get the file's last fbn
+
     i32 lastRequestedByte = curs + numb;
+    if  (lastRequestedByte > size) {
+        lastRequestedByte = size;
+        numb = size - curs;
+    }
+
     i32 lastRequestedFbn = (lastRequestedByte / BYTESPERBLOCK); // get the last requested fbn
     if (lastRequestedFbn > maxFbn) { // the user wants more bytes than the file has remaining
         lastRequestedFbn = maxFbn; // floor() the lastRequested fbn
@@ -164,10 +171,10 @@ i32 fsRead(i32 fd, i32 numb, void* buf) {
       fsSeek(fd, numb, SEEK_CUR);
       return numb;
     }
-    int offset = 0; //where at the original buffer 
+    int offset = 0; //where at the original buffer
     int tempBufOffset = 0; //where at the tempBuf start copy
     int copySize = BYTESPERBLOCK; //size of copying
-    
+
     for (i32 fbn = startingFbn; fbn <= lastRequestedFbn; fbn++) {
         // read all the bytes in the corresponding dbn into the buffer
         if (bfsRead(inum, fbn, tempBuf) != 0) {
@@ -183,10 +190,8 @@ i32 fsRead(i32 fd, i32 numb, void* buf) {
             lastRequestedFbn--;
           }
         }
-        printf("COPY FBN: %d\n To the buf starting index: %d, and from partBuf at: %d, size: %d\n" , 
-        fbn, offset, tempBufOffset, copySize);
-        memcpy(buf + offset, tempBuf + tempBufOffset, copySize);            
-        if (fbn == startingFbn) { 
+        memcpy(buf + offset, tempBuf + tempBufOffset, copySize);
+        if (fbn == startingFbn) {
         offset += copySize;
         } else {
           offset += BYTESPERBLOCK;
@@ -212,41 +217,53 @@ i32 fsWrite(i32 fd, i32 numb, void* buf) {
 
     i32 currFbn = curs / BYTESPERBLOCK; // get fbn the cursor is currently on
     i32 lastFbn = size / BYTESPERBLOCK; // get the file's last fbn
-    i32 currDbn;
 
-    i8 currBlockBytes[BYTESPERBLOCK];
+    i8 dbnBlockBytes[BYTESPERBLOCK];
     i8 bytesToWrite[BYTESPERBLOCK];
     i32 bytesWritten = 0;
-    i32 numBytesToWrite;
+    i32 extendedBytesWritten;
     i32 trailingBytes;
+    i32 numBytesToWrite;
 
     // first utilize the blocks already allocated
-    while (currFbn <= lastFbn) {
+    while (1) {
         // if numb reaches 0 in this while loop, the write fits within pre-allocated blocks
         if (numb == 0) {
             break;
         }
 
-        i32 currFbnStartingByte = currFbn * BYTESPERBLOCK;
-        i32 cursorBlockIndex = curs - currFbnStartingByte;
-        trailingBytes = BYTESPERBLOCK - cursorBlockIndex;
+        // if this statement is true, that means we have run out of blocks
+        // but there are still bytes to be written
+        if (currFbn == lastFbn) {
+            extendedBytesWritten = numb;
+            i32 addtlBlocksReq = (numb / BYTESPERBLOCK) + 1;
+            bfsExtend(inum, lastFbn + addtlBlocksReq);
+        }
 
-        // read bytes of currFbn into currBlockBytes
-        bfsRead(inum, currFbn, currBlockBytes);
+        // starting byte number of the curr block
+        i32 currBlockStartingByte = currFbn * BYTESPERBLOCK;
+        // which byte the cursor is on within the block
+        i32 cursorBlockByteIndex = curs - currBlockStartingByte;
+        // bytes from the cursor til end of the block
+        trailingBytes = BYTESPERBLOCK - cursorBlockByteIndex;
 
         // calculate the number of bytes that will be written in currFbn
-        // cursorBlockIndex + numBytesToWrite = BYTESPERBLOCK
+        // cursorBlockByteIndex + numBytesToWrite = BYTESPERBLOCK
+        // min() to avoid writing more than numb
         numBytesToWrite = min(trailingBytes, numb);
 
-        // copy numBytestoWrite bytes from buf into bytesToWrite
-        // starting from an offset of total bytesWritten
+        // read bytes of currDbn into dbnBlockBytes
+        bfsRead(inum, currFbn, dbnBlockBytes);
+
         // clear bytesToWrite of previously written bytes
         memset(bytesToWrite, 0, sizeof bytesToWrite);
+        // copy numBytesToWrite bytes from buf into bytesToWrite
+        // starting from an offset of total bytesWritten
         memcpy(bytesToWrite, (buf + bytesWritten), numBytesToWrite);
 
-        // copy the bytes to write from buf into bytesToWrite
-        // starting from an offset of cursorBlockIndex
-        memcpy((currBlockBytes + cursorBlockIndex), bytesToWrite, numBytesToWrite);
+        // copy bytesToWrite into dbnBlockBytes
+        // starting from an offset of cursorBlockByteIndex
+        memcpy((dbnBlockBytes + cursorBlockByteIndex), bytesToWrite, numBytesToWrite);
 
         // move cursor to end of write location
         fsSeek(fd, numBytesToWrite, SEEK_CUR);
@@ -256,56 +273,15 @@ i32 fsWrite(i32 fd, i32 numb, void* buf) {
         // increment the number of bytes that HAVE been written
         bytesWritten+=numBytesToWrite;
 
-        // write the temp_buf to currDbn
-        currDbn = bfsFbnToDbn(inum, currFbn);
-        bioWrite(currDbn, currBlockBytes); // write temp_buf as the new dbn
+        // write dbnBlockBytes to currDbn
+        int currDbn = bfsFbnToDbn(inum, currFbn);
+        bioWrite(currDbn, dbnBlockBytes); // write temp_buf as the new dbn
         currFbn+=1;
     }
 
-    // if there are still bytes that need to be written
-    // that means after writing the 512th byte of the currLastDbn
-    // addtl blocks will need to be allocated
-    // guaranteed that either BYTESPERBLOCK or numb blocks will be written
-    i32 addtlBlocksReq = numb / BYTESPERBLOCK;
-    if (addtlBlocksReq > 0) {
-        lastFbn += addtlBlocksReq;
-        bfsExtend(inum, lastFbn);
-    }
-
-    while (currFbn < lastFbn) {
-        if (numb == 0) { break; }
-
-        // read bytes of currFbn into currBlockBytes
-        bfsRead(inum, currFbn, currBlockBytes);
-
-        // if numb < BYTESPERBLOCK, these are the last bytes to write
-        numBytesToWrite = min(numb, BYTESPERBLOCK);
-
-        memset(bytesToWrite, 0, sizeof bytesToWrite);
-        memset(currBlockBytes, 0, BYTESPERBLOCK);
-
-        memcpy(bytesToWrite, (buf + bytesWritten), numBytesToWrite);
-        // cursor guaranteed to be at blockIndex 0
-        memcpy(currBlockBytes, bytesToWrite, numBytesToWrite);
-
-        currDbn = bfsAllocBlock(inum, currFbn);
-        bioWrite(currDbn, currBlockBytes);
-
-        fsSeek(fd, numBytesToWrite, SEEK_CUR);
-        curs = g_oft[ofte].curs;
-
-        numb-=numBytesToWrite;
-        bytesWritten+=numBytesToWrite;
-        currFbn+=1;
-    }
-
-    return 0;
+    bfsSetSize(inum, size + extendedBytesWritten);
+    return bytesWritten;
 }
-
-i32 fsWrite_helper() {
-
-}
-
 
 i32 max(i32 num1, i32 num2) {
     return (num1 > num2 ) ? num1 : num2;
