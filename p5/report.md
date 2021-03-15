@@ -66,14 +66,13 @@ Initialize these variables
 2. Calculate last requested FBN, and starting FBN
 3. Calculate distance between starting byte of starting FBN and cursor 
 
-Case 1: Read only one FBN. (starting FBN equals lastRequested FBN) 
+* Case 1: Read only one FBN. (starting FBN equals lastRequested FBN) 
 4. Read FBN and save it to the tempBuf
 5. Copy the contents in tempBuf to buf from the cursorBlockIndex with the size of numb.
 6. Move the cursor by numb.
 7. Return numb.  
 
-Case2 :Read more than one FBN
-For loop from starting FBN to last Requested FBN
+* Case2 :Read more than one FBN (For loop from starting FBN to last Requested FBN)
 4. Read FBN and save it to the tempBuf
 5. If currently reading block is the firstly read block, set offset of the tempbuf to be same as the distance between starting byte of starting FBN and cursor 
 6. If currently reading block is the lastly read block, set the copy size to numb minus starting byte of the last FBN.
